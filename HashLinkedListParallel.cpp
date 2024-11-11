@@ -12,6 +12,16 @@ HashLinkedListParallel<KeyType, ValueType>::~HashLinkedListParallel() {
 
 template <typename KeyType, typename ValueType>
 void HashLinkedListParallel<KeyType, ValueType>::insert(const KeyType& key, const ValueType& value) {
+    // Check if the key already exists in the hash map
+    auto it = hash_map_.find(key);
+    if (it != hash_map_.end()) {
+        // If the key exists, update the value in the list (update the ValueType)
+        it->second->second = value;  // Access the second (value) of the pair in the list
+    } else {
+        // If the key does not exist, insert the new key-value pair into both the list and the hash map
+        list_.push_back({key, value});
+        hash_map_[key] = std::prev(list_.end());  // Store iterator to the newly inserted element
+    }
 }
 
 template <typename KeyType, typename ValueType>
