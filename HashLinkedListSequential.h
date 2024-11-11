@@ -4,12 +4,14 @@
 #include <list>
 #include <unordered_map>
 #include <utility>
+#include "LinkedList.h"  // 使用自定义的 LinkedList
 
 template <typename KeyType, typename ValueType>
 class HashLinkedListSequential {
 public:
     using KeyValuePair = std::pair<KeyType, ValueType>;
-    using ListIterator = typename std::list<KeyValuePair>::iterator;
+    // using ListIterator = typename std::list<KeyValuePair>::iterator;
+    using ListIterator = typename LinkedList<KeyValuePair>::Iterator;
 
     // 构造函数与析构函数
     HashLinkedListSequential();
@@ -49,7 +51,7 @@ public:
     ListIterator find(const KeyType& key);
 
 private:
-    std::list<KeyValuePair> list_;
+    LinkedList<KeyValuePair> list_;
     std::unordered_map<KeyType, ListIterator> hash_map_;
 };
 
