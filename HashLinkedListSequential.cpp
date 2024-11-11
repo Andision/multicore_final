@@ -97,10 +97,10 @@ typename HashLinkedListSequential<KeyType, ValueType>::ListIterator HashLinkedLi
 }
 
 template <typename KeyType, typename ValueType>
-ValueType* HashLinkedListSequential<KeyType, ValueType>::find(const KeyType& key) {
+typename HashLinkedListSequential<KeyType, ValueType>::ListIterator HashLinkedListSequential<KeyType, ValueType>::find(const KeyType& key) {
     auto it = hash_map_.find(key);
     if (it != hash_map_.end()) {
-        return &(it->second->second);  // Return a pointer to the value in the linked list
+        return it->second;  // Return a pointer to the value in the linked list
     }
-    return nullptr;  // Key not found
+    return list_.end();  // if Key not found
 }
