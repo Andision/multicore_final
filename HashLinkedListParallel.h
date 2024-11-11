@@ -4,6 +4,7 @@
 #include <list>
 #include <unordered_map>
 #include <utility>
+#include <vector> // 用于批量操作
 
 template <typename KeyType, typename ValueType>
 class HashLinkedListParallel {
@@ -17,16 +18,21 @@ public:
 
     // 插入元素
     void insert(const KeyType& key, const ValueType& value);
-    
+    void insert(const std::vector<KeyValuePair>& key_value_pairs);  // 批量插入
+
     // 查找元素
     bool contains(const KeyType& key) const;
+    std::vector<bool> contains(const std::vector<KeyType>& keys) const;  // 批量查找
 
     // 获取元素的值
     ValueType& at(const KeyType& key);
     const ValueType& at(const KeyType& key) const;
+    std::vector<ValueType> at(const std::vector<KeyType>& keys) const;  // 批量获取（只读）
+    std::vector<ValueType> at(const std::vector<KeyType>& keys);  // 批量获取（读写）
 
     // 删除指定键的元素
     void erase(const KeyType& key);
+    void erase(const std::vector<KeyType>& keys);  // 批量删除
 
     // 清空所有元素
     void clear();
