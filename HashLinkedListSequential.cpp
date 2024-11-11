@@ -32,8 +32,18 @@ const ValueType& HashLinkedListSequential<KeyType, ValueType>::at(const KeyType&
 
 template <typename KeyType, typename ValueType>
 void HashLinkedListSequential<KeyType, ValueType>::erase(const KeyType& key) {
-    // 删除元素实现
+    // Check if the key exists in the hash map
+    auto it = hash_map_.find(key);
+    if (it != hash_map_.end()) {
+        // Key exists, first erase the element from the linked list
+        list_.erase(it->second);
+        
+        // Then erase the key from the hash map
+        hash_map_.erase(it);
+    }
 }
+
+
 
 template <typename KeyType, typename ValueType>
 void HashLinkedListSequential<KeyType, ValueType>::clear() {
