@@ -12,7 +12,13 @@ HashLinkedListSequential<KeyType, ValueType>::~HashLinkedListSequential() {
 
 template <typename KeyType, typename ValueType>
 void HashLinkedListSequential<KeyType, ValueType>::insert(const KeyType& key, const ValueType& value) {
-    // 插入函数实现
+    auto it = hash_map_.find(key);
+    if (it != hash_map_.end()) {
+        it->second->second = value;
+    } else {
+        list_.emplace_back(key, value);
+        hash_map_[key] = --list_.end();
+    }
 }
 
 template <typename KeyType, typename ValueType>
