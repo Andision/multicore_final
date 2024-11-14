@@ -12,6 +12,9 @@ HashLinkedListParallel<KeyType, ValueType>::~HashLinkedListParallel() {
 
 template <typename KeyType, typename ValueType>
 void HashLinkedListParallel<KeyType, ValueType>::insert(const KeyType& key, const ValueType& value) {
+    // Lock the mutex to ensure thread safety
+    std::lock_guard<std::mutex> lock(mutex_);
+
     // Check if the key already exists in the hash map
     auto it = hash_map_.find(key);
     if (it != hash_map_.end()) {
@@ -21,6 +24,29 @@ void HashLinkedListParallel<KeyType, ValueType>::insert(const KeyType& key, cons
         // If the key does not exist, insert the new key-value pair into both the list and the hash map
         list_.push_back({key, value});
         hash_map_[key] = std::prev(list_.end());  // Store iterator to the newly inserted element
+    }
+}
+
+template <typename KeyType, typename ValueType>
+void HashLinkedListParallel<KeyType, ValueType>::insert(const std::vector<KeyValuePair>& key_value_pairs) {
+    // Lock the mutex to ensure thread safety
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    // Iterate over the batch of key-value pairs
+    for (const auto& pair : key_value_pairs) {
+        const KeyType& key = pair.first;
+        const ValueType& value = pair.second;
+
+        // Check if the key already exists in the hash map
+        auto it = hash_map_.find(key);
+        if (it != hash_map_.end()) {
+            // If the key exists, update the value in the list
+            it->second->second = value;  // Access the second (value) of the pair in the list
+        } else {
+            // If the key does not exist, insert the new key-value pair into both the list and the hash map
+            list_.push_back(pair);
+            hash_map_[key] = std::prev(list_.end());  // Store iterator to the newly inserted element
+        }
     }
 }
 
