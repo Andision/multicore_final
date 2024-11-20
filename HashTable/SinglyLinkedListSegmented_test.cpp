@@ -13,11 +13,8 @@ int main() {
     list.insertAtTail(5, '5');
     list.insertAtTail(6, '6');
     list.insertAtTail(7, '7');
-    list.printSegments();
     list.insertAtTail(8, '8');
-    list.printSegments();
     list.insertAtTail(9, '9');
-    list.printSegments();
 
     cout << list.search(1)->value << endl;
     cout << list.search(2)->value << endl;

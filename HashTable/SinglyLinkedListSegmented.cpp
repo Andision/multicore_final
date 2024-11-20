@@ -1,5 +1,6 @@
 #include "SinglyLinkedListNode.cpp"
 #include <iostream>
+#include <omp.h>
 #include <vector>
 #define DEFAULT_SEGMENTS_SIZE 3
 using namespace std;
@@ -121,19 +122,47 @@ public:
     }
 
     vector<SinglyLinkedListNode<K, V> *> searchWithPrev(K key) {
-        SinglyLinkedListNode<K, V> *current = head;
-        SinglyLinkedListNode<K, V> *previous = nullptr;
 
-        while (current) {
-            if (current->key == key) {
-                return {previous, current};
+        bool stop = false;
+        vector<SinglyLinkedListNode<K, V> *> res = {nullptr, nullptr};
+
+        #pragma omp parallel for shared(stop, res)
+        for (int i = 0; i < segments.size(); ++i) {
+            if (stop) {
+                break;
             }
 
-            previous = current;
-            current = current->next;
+            SinglyLinkedListNode<K, V> *current = segments[i];
+            SinglyLinkedListNode<K, V> *previous = nullptr;
+            SinglyLinkedListNode<K, V> *end = nullptr;
+
+            if (i + 1 < segments.size()) {
+                end = segments[i + 1];
+            }
+
+            while (current != end) {
+                if (current->key == key) {
+                    break;
+                }
+                previous = current;
+                current = current->next;
+            }
+
+            if (current != head && previous == nullptr) {
+                SinglyLinkedListNode<K, V> *pivot = segments[i - 1];
+                while (pivot->next != current) {
+                    pivot = pivot->next;
+                }
+                previous = pivot;
+            }
+
+            #pragma omp critical
+            res = {previous, current};
+
+            break;
         }
 
-        return {nullptr, nullptr};
+        return res;
     }
 
     void printSegments() {
