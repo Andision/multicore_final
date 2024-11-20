@@ -1,16 +1,17 @@
 #include "SinglyLinkedListNode.cpp"
 #include <iostream>
+#include <vector>
 using namespace std;
 
 template <typename K, typename V>
-class SinglyLinkedList {
+class SinglyLinkedListSegmented {
 private:
     SinglyLinkedListNode<K, V> *head;
 
 public:
-    SinglyLinkedList() : head(nullptr) {}
+    SinglyLinkedListSegmented() : head(nullptr) {}
 
-    ~SinglyLinkedList() {
+    ~SinglyLinkedListSegmented() {
         SinglyLinkedListNode<K, V> *current = head;
         while (current) {
             SinglyLinkedListNode<K, V> *temp = current;
@@ -35,28 +36,20 @@ public:
     }
 
     bool remove(K key) {
-        if (!head)
-            return false;
 
-        if (head->key == key) {
-            SinglyLinkedListNode<K, V> *temp = head;
-            head = head->next;
-            delete temp;
+        vector<SinglyLinkedListNode<K, V> *> searchResult = searchWithPrev(key);
+
+        SinglyLinkedListNode<K, V> *previous = searchResult[0];
+        SinglyLinkedListNode<K, V> *current = searchResult[1];
+
+        if (!current) {
+            return false;
+        } else {
+            SinglyLinkedListNode<K, V> *next = current->next;
+            previous->next = next;
+            delete current;
             return true;
         }
-
-        SinglyLinkedListNode<K, V> *current = head;
-        while (current->next && current->next->key != key) {
-            current = current->next;
-        }
-
-        // ads::maybe wrong
-        if (!current->next)
-            return false;
-        SinglyLinkedListNode<K, V> *temp = current->next;
-        current->next = current->next->next;
-        delete temp;
-        return true;
     }
 
     bool update(K key, V oldValue, V newValue) {
@@ -69,13 +62,23 @@ public:
     }
 
     SinglyLinkedListNode<K, V> *search(K key) {
+        vector<SinglyLinkedListNode<K, V> *> searchResult = searchWithPrev(key);
+        return searchResult[1];
+    }
+
+    vector<SinglyLinkedListNode<K, V> *> searchWithPrev(K key) {
         SinglyLinkedListNode<K, V> *current = head;
+        SinglyLinkedListNode<K, V> *previous = nullptr;
+
         while (current) {
             if (current->key == key) {
-                return current;
+                return {previous, current};
             }
+
+            previous = current;
             current = current->next;
         }
-        return nullptr;
+
+        return {nullptr, nullptr};
     }
 };
