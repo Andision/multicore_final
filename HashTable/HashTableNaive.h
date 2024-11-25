@@ -78,7 +78,7 @@ public:
     }
 
     vector<V *> batchSearch(const vector<K> keys) {
-        vector<V *> results(keys.size());
+        vector<V *> results;
         for (int i = 0; i < keys.size(); ++i) {
             K key = keys[i];
 

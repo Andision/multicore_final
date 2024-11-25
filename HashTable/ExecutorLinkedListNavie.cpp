@@ -1,4 +1,4 @@
-#include "HashTableNaive.cpp"
+#include "HashTableNaive.h"
 #include <cctype>
 #include <cstdlib> // for atoi
 #include <cstring> // for strcmp
