@@ -4,7 +4,6 @@
 
 ### Project Topic
 
-
 ### Team Member
 
 
@@ -17,7 +16,7 @@
 
 
 
-## Comparision
+## Comparison
 
 
 
