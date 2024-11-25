@@ -1,51 +1,34 @@
 #include "ArrayHashTable.cpp"
 #include <iostream>
-
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
 using namespace std;
 
 int main() {
-    ArrayHashTable<int, char> hashTable;
-
-    // Insert test cases
-    hashTable.insert(1, 'A');
-    hashTable.insert(2, 'B');
-    hashTable.insert(3, 'C');
-    hashTable.insert(4, 'D');
-
-    // Print the hash table
-    cout << "Initial hash table:" << endl;
-    hashTable.print();
-
-    // Search test cases
-    try {
-        cout << "Search key 2: " << hashTable.search(2) << endl;
-        cout << "Search key 5 (not present): ";
-        cout << hashTable.search(5) << endl; // This will throw an exception
-    } catch (const runtime_error &e) {
-        cout << e.what() << endl;
+    ifstream file("generated_input.txt"); 
+    if (!file.is_open()) {
+        cerr << "Error: Could not open input file." << endl;
+        return 1;
     }
 
-    // Update test case
-    if (hashTable.update(2, 'Z')) {
-        cout << "Key 2 updated successfully." << endl;
-    } else {
-        cout << "Key 2 update failed!" << endl;
+    int operationsCount;
+    file >> operationsCount;
+
+    ArrayHashTable hashTable;
+    vector<string> commands;
+
+    string line;
+    getline(file, line); 
+    while (getline(file, line)) {
+        commands.push_back(line); // commands
     }
 
-    // Print the hash table after update
-    cout << "Hash table after update:" << endl;
-    hashTable.print();
+    file.close();
 
-    // Remove test case
-    if (hashTable.remove(2)) {
-        cout << "Key 2 removed successfully." << endl;
-    } else {
-        cout << "Key 2 removal failed!" << endl;
-    }
-
-    // Print the hash table again
-    cout << "Hash table after deletion:" << endl;
-    hashTable.print();
+    // Batch
+    hashTable.batchExecute(commands);
 
     return 0;
 }
