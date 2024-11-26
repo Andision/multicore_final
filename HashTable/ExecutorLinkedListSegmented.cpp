@@ -109,22 +109,23 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable) 
 }
 
 int main(int argc, char *argv[]) {
-    // Check if the required argument is passed
-    int capacity = -1;
-    for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "--capacity") == 0 && i + 1 < argc) {
-            capacity = atoi(argv[i + 1]); // Convert the next argument to an integer
-            break;
-        }
-    }
+    // // Check if the required argument is passed
+    // int capacity = -1;
+    // for (int i = 1; i < argc; ++i) {
+    //     if (strcmp(argv[i], "--capacity") == 0 && i + 1 < argc) {
+    //         capacity = atoi(argv[i + 1]); // Convert the next argument to an integer
+    //         break;
+    //     }
+    // }
 
-    if (capacity <= 0) {
-        cerr << "Error: You must provide a positive integer for --capacity.\n";
-        cerr << "Usage: ExecutorLinkedListNavie --capacity <positive_integer>\n";
-        return 1;
-    }
+    // if (capacity <= 0) {
+    //     cerr << "Error: You must provide a positive integer for --capacity.\n";
+    //     cerr << "Usage: ExecutorLinkedListNavie --capacity <positive_integer>\n";
+    //     return 1;
+    // }
 
-    HashTableSegmented<int, int> hashTable(capacity);
+    // HashTableSegmented<int, int> hashTable(capacity);
+    HashTableSegmented<int, int> hashTable;
 
     int N;
     scanf("%d\n", &N);
