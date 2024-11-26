@@ -27,20 +27,33 @@ private:
     mutex tableLock;
 
     void resize() {
-        lock_guard<mutex> guard(tableLock);
+        lock_guard<mutex> guard(tableLock); // lock
+        cout << "Resizing hash table from capacity " << capacity << " to " << capacity * 2 << endl;
+
         int newCapacity = capacity * 2;
         vector<DynamicArrayNode> newData(newCapacity);
+
         for (int i = 0; i < capacity; ++i) {
             if (data[i].isOccupied) {
-                size_t hashIndex = std::hash<int>()(data[i].key) % newCapacity;
+                size_t hashIndex = std::hash<int>{}(data[i].key) % newCapacity;
+
+                // add limit
+                int probeCount = 0;
                 while (newData[hashIndex].isOccupied) {
                     hashIndex = (hashIndex + 1) % newCapacity;
+                    if (++probeCount > newCapacity) {
+                        throw runtime_error("Resize failed: excessive collisions");
+                    }
                 }
+
                 newData[hashIndex] = data[i];
             }
         }
+
         data = std::move(newData);
         capacity = newCapacity;
+
+        cout << "Resize complete. New capacity: " << capacity << endl;
     }
 
 public:
@@ -53,7 +66,7 @@ public:
         if (size == capacity) {
             resize();
         }
-        size_t hashIndex = std::hash<int>()(key) % capacity;
+        size_t hashIndex = std::hash<int>{}(key) % capacity;
         while (data[hashIndex].isOccupied) {
             hashIndex = (hashIndex + 1) % capacity;
         }
@@ -61,33 +74,35 @@ public:
         ++size;
     }
 
-    void remove(int key) {
+    bool remove(int key) {
         lock_guard<mutex> guard(tableLock);
-        size_t hashIndex = std::hash<int>()(key) % capacity;
+        size_t hashIndex = std::hash<int>{}(key) % capacity;
         for (int i = 0; i < capacity; ++i) {
             if (data[hashIndex].isOccupied && data[hashIndex].key == key) {
                 data[hashIndex].isOccupied = false;
                 --size;
-                return;
+                return true;
             }
             hashIndex = (hashIndex + 1) % capacity;
         }
+        return false;
     }
 
-    void update(int key, int newValue) {
+    bool update(int key, int newValue) {
         lock_guard<mutex> guard(tableLock);
-        size_t hashIndex = std::hash<int>()(key) % capacity;
+        size_t hashIndex = std::hash<int>{}(key) % capacity;
         for (int i = 0; i < capacity; ++i) {
             if (data[hashIndex].isOccupied && data[hashIndex].key == key) {
                 data[hashIndex].value = newValue;
-                return;
+                return true;
             }
             hashIndex = (hashIndex + 1) % capacity;
         }
+        return false;
     }
 
     int searchValue(int key) const {
-        size_t hashIndex = std::hash<int>()(key) % capacity;
+        size_t hashIndex = std::hash<int>{}(key) % capacity;
         for (int i = 0; i < capacity; ++i) {
             if (data[hashIndex].isOccupied && data[hashIndex].key == key) {
                 return data[hashIndex].value;
@@ -128,41 +143,21 @@ public:
                 } else if (op == "Remove") {
                     int key;
                     iss >> key;
-                    remove(key);
-                    cout << "Removed: " << key << endl;
+                    bool result = remove(key);
+                    cout << "Removed: " << key << " -> " << (result ? "true" : "false") << endl;
                 } else if (op == "Update") {
                     int key, value;
                     iss >> key >> value;
-                    update(key, value);
-                    cout << "Updated: " << key << " -> " << value << endl;
+                    bool result = update(key, value);
+                    cout << "Updated: " << key << " -> " << value << " -> " << (result ? "true" : "false") << endl;
                 } else if (op == "Search") {
                     int key;
                     iss >> key;
                     try {
-                        int result = searchValue(key);
-                        cout << "Search: " << key << " -> " << result << endl;
+                        cout << "Search: " << searchValue(key) << endl;
                     } catch (const runtime_error&) {
-                        cout << "Search: " << key << " -> Not found" << endl;
+                        cout << "Search: Not found" << endl;
                     }
-                } else if (op == "BI") { // Batch Insert
-                    int count;
-                    iss >> count;
-                    vector<int> keys(count), values(count);
-                    for (int i = 0; i < count; ++i) iss >> keys[i];
-                    for (int i = 0; i < count; ++i) iss >> values[i];
-                    batchInsert(keys, values);
-                    cout << "Batch Inserted: " << count << " items" << endl;
-                } else if (op == "BS") { // Batch Search
-                    int count;
-                    iss >> count;
-                    vector<int> keys(count), results;
-                    for (int i = 0; i < count; ++i) iss >> keys[i];
-                    batchSearch(keys, results);
-                    cout << "Batch Search Results: ";
-                    for (const auto& result : results) {
-                        cout << result << " ";
-                    }
-                    cout << endl;
                 }
             }
         };
@@ -181,3 +176,5 @@ public:
         }
     }
 };
+
+
