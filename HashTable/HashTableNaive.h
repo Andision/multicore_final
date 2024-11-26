@@ -29,10 +29,18 @@ public:
         delete[] table;
     }
 
-    void insert(const K &key, const V &value) {
+    bool insert(const K &key, const V &value) {
         int index = hashFunction(key);
+
+        if (search(key) != nullptr) {
+            std::cerr << "Key " << key << " already exists. Insert skipped.\n";
+            return false;
+        }
+
         table[index].insertAtHead(key, value);
         size++;
+
+        return true;
     }
 
     bool remove(const K &key) {

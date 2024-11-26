@@ -77,19 +77,26 @@ public:
     DoublyHashTable &operator=(DoublyHashTable &&) = delete;
 
     // Methods
-    void insert(const K &key, const V &value) {
+    bool insert(const K &key, const V &value) {
         if (size == capacity) {
             cerr << "HashTable is full!\n";
-            return;
+            return false;
         }
 
         int index = findIndex(key);
+
+        if (table[index].isActive && table[index].key == key) {
+            cerr << "Key " << key << " already exists. Insert skipped.\n";
+            return false;
+        }
 
         if (!table[index].isActive) {
             size++;
         }
 
         table[index] = DoublyHashTableNode<K, V>(key, value);
+
+        return true;
     }
 
     bool remove(const K &key) {

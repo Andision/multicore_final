@@ -18,8 +18,9 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable) 
         int x, y;
         if (iss >> x >> y) {
             if (command == "I") {
-                hashTable.insert(x, y);
-                cout << x << ' ' << y << endl;
+                if (hashTable.insert(x, y)) {
+                    cout << x << ' ' << y << endl;
+                }
             } else {
                 bool result = hashTable.update(x, y);
                 cout << (result ? "true" : "false") << endl;

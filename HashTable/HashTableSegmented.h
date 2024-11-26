@@ -31,13 +31,21 @@ public:
         delete[] table;
     }
 
-    void insert(const K& key, const V& value) {
+    bool insert(const K& key, const V& value) {
         int index = hashFunction(key);
+
+        if (search(key) != nullptr) {
+            std::cerr << "Key " << key << " already exists. Insert skipped.\n";
+            return false;
+        }
+
         #pragma omp critical
         {
             table[index].insertAtTail(key, value);
             size++;
         }
+
+        return true;
     }
 
     void batchInsert(const K* keys, const V* values, int count) {
