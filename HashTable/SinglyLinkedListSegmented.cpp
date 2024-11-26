@@ -151,7 +151,7 @@ public:
                 current = current->next;
             }
 
-            if (current->key == key) {
+            if (current && current->key == key) {
                 if (current != head && previous == nullptr) {
                     SinglyLinkedListNode<K, V> *pivot = segments[i - 1];
                     while (pivot->next != current) {
@@ -160,8 +160,10 @@ public:
                     previous = pivot;
                 }
 
-                #pragma omp critical
-                res = {previous, current};
+                #pragma omp critical(search_critical)
+                {
+                    res = {previous, current};
+                }
             }
         }
 
@@ -169,7 +171,6 @@ public:
     }
 
     void printSegments() {
-        cout << "printSegments: ";
         for (auto it = segments.begin(); it != segments.end(); ++it) {
             cout << (*it)->key << ' ';
         }

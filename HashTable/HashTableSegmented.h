@@ -47,7 +47,7 @@ public:
     bool remove(const K& key) {
         int index = hashFunction(key);
         bool result = false;
-        #pragma omp critical
+        #pragma omp critical(remove_critical)
         {
             result = table[index].remove(key);
             if (result) {
@@ -89,7 +89,7 @@ public:
 
     void printSegments() {
         for (int i = 0; i < capacity; ++i) {
-            std::cout << "Bucket " << i << " segments:" << std::endl;
+            std::cout << "Bucket " << i << " segments:";
             table[i].printSegments();
         }
     }
