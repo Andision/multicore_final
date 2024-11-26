@@ -1,16 +1,16 @@
-#include "SinglyLinkedListSegmented.cpp"
-#include "DynamicArray.h"
+#include "NewSinglyLinkedListSegmented.cpp"
+// #include "DynamicArray.h"
 #include "SimpleHash.h"
 #include <iostream>
 #include <omp.h>
 
 #define DEFAULT_HASHTABLE_CAPACITY 10
-#define DEFAULT_SEGMENT_SIZE 3
+#define DEFAULT_SEGMENT_SIZE 10
 
 template <typename K, typename V>
 class HashTableSegmented {
 private:
-    DynamicArray<SinglyLinkedListSegmented<K, V>> table;
+    SinglyLinkedListSegmented<K, V> table[DEFAULT_HASHTABLE_CAPACITY];
     int capacity;
     int size;
     std::hash<K> hasher;
@@ -20,10 +20,17 @@ private:
     }
 
 public:
-    HashTableSegmented(int cap = DEFAULT_HASHTABLE_CAPACITY, int segSize = DEFAULT_SEGMENT_SIZE)
-        : table(cap), capacity(cap), size(0) {
+    // HashTableSegmented(int cap = DEFAULT_HASHTABLE_CAPACITY, int segSize = DEFAULT_SEGMENT_SIZE)
+    //     : table(cap), capacity(cap), size(0) {
+    //     for (int i = 0; i < capacity; ++i) {
+    //         table.push_back(SinglyLinkedListSegmented<K, V>(segSize));
+    //     }
+    // }
+
+    HashTableSegmented(int segSize = DEFAULT_SEGMENT_SIZE)
+        : capacity(DEFAULT_HASHTABLE_CAPACITY), size(0) {
         for (int i = 0; i < capacity; ++i) {
-            table.push_back(SinglyLinkedListSegmented<K, V>(segSize));
+            table[i] = SinglyLinkedListSegmented<K, V>(segSize);
         }
     }
 
