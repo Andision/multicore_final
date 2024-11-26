@@ -47,7 +47,7 @@ public:
         }
         size++;
 
-        if (segments.size() < segmentSize) {
+        if (static_cast<int>(segments.size()) < segmentSize) {
             if (size < segmentSize || size % segments.size() == 1) {
                 segments.push_back(newNode);
             }
@@ -128,14 +128,14 @@ public:
         bool stop = false;
         vector<SinglyLinkedListNode<K, V> *> res = {nullptr, nullptr};
 
-#pragma omp parallel for shared(stop, res) num_threads(segments.size())
-        for (int i = 0; i < segments.size(); ++i) {
+        #pragma omp parallel for shared(stop, res) num_threads(segments.size())
+        for (int i = 0; i < static_cast<int>(segments.size()); ++i) {
 
             SinglyLinkedListNode<K, V> *current = segments[i];
             SinglyLinkedListNode<K, V> *previous = nullptr;
             SinglyLinkedListNode<K, V> *end = nullptr;
 
-            if (i + 1 < segments.size()) {
+            if (i + 1 < static_cast<int>(segments.size())) {
                 end = segments[i + 1];
             }
 
@@ -160,7 +160,7 @@ public:
                     previous = pivot;
                 }
 
-#pragma omp critical
+                #pragma omp critical
                 res = {previous, current};
             }
         }
