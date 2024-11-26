@@ -1,5 +1,6 @@
 #include "SinglyLinkedList.cpp"
 #include <iostream>
+#include <vector>
 #define DEFAULT_HASHTABLE_CAPACITY 1
 using namespace std;
 
@@ -67,16 +68,23 @@ public:
         }
     }
 
-    void batchInsert(const K *keys, const V *values, int count) {
-        for (int i = 0; i < count; ++i) {
-            insert(keys[i], values[i]);
+    void batchInsert(const vector<K> keys, const vector<V> values) {
+        for (int i = 0; i < keys.size(); ++i) {
+            K key = keys[i];
+            V value = values[i];
+
+            insert(key, value);
         }
     }
 
-    void batchSearch(const K *keys, V **results, int count) {
-        for (int i = 0; i < count; ++i) {
-            results[i] = search(keys[i]);
+    vector<V *> batchSearch(const vector<K> keys) {
+        vector<V *> results;
+        for (int i = 0; i < keys.size(); ++i) {
+            K key = keys[i];
+
+            results.push_back(search(key));
         }
+        return results;
     }
 
     void print() {

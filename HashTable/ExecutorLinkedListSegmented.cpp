@@ -64,7 +64,7 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable) 
                 int *keysArray = keys.data();
                 int *valuesArray = values.data();
                 int count = keys.size();
-                hashTable.insertMultiple(keysArray, valuesArray, count);
+                hashTable.batchInsert(keysArray, valuesArray, count);
                 cout << "command finished" << endl;
             } else {
                 cout << "Not Implemented" << endl;
@@ -87,7 +87,7 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable) 
                 int count = numbers.size();
                 int **results = new int *[count];
 
-                hashTable.searchMultiple(numbersArray, results, count);
+                hashTable.batchSearch(numbersArray, results, count);
                 for (int i = 0; i < count; ++i) {
                     int *pointer = results[i];
                     if (pointer) {
