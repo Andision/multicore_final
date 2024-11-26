@@ -37,7 +37,7 @@ public:
         }
     }
 
-    void insertMultiple(const K* keys, const V* values, int count) {
+    void batchInsert(const K* keys, const V* values, int count) {
         #pragma omp parallel for
         for (int i = 0; i < count; ++i) {
             insert(keys[i], values[i]);
@@ -73,7 +73,7 @@ public:
         return node ? &(node->value) : nullptr;
     }
 
-    void searchMultiple(const K* keys, V** results, int count) {
+    void batchSearch(const K* keys, V** results, int count) {
         #pragma omp parallel for
         for (int i = 0; i < count; ++i) {
             results[i] = search(keys[i]);
