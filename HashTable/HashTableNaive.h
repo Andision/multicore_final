@@ -69,7 +69,7 @@ public:
     }
 
     void batchInsert(const vector<K> keys, const vector<V> values) {
-        for (int i = 0; i < keys.size(); ++i) {
+        for (int i = 0; i < static_cast<int>(keys.size()); ++i) {
             K key = keys[i];
             V value = values[i];
 
@@ -79,7 +79,7 @@ public:
 
     vector<V *> batchSearch(const vector<K> keys) {
         vector<V *> results;
-        for (int i = 0; i < keys.size(); ++i) {
+        for (int i = 0; i < static_cast<int>(keys.size()); ++i) {
             K key = keys[i];
 
             results.push_back(search(key));
