@@ -100,7 +100,7 @@ public:
             head = next;
         }
 
-        delete result.previous;
+        delete result.current;
         size--;
 
         segmentCount = 0;
