@@ -1,146 +1,168 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <vector>
-#include <pthread.h>
-#include <cstring>
+#include <functional>
+#include <mutex>
+#include <stdexcept>
+#include <sstream>
+#include <string>
+#include <thread>
 using namespace std;
 
-// Node
+// Node structure for the hash table
 struct DynamicArrayNode {
     int key;
     int value;
     bool isOccupied;
 
     DynamicArrayNode() : key(0), value(0), isOccupied(false) {}
+    DynamicArrayNode(int k, int v, bool occupied) : key(k), value(v), isOccupied(occupied) {}
 };
 
-// Parallel array hash table
+// Parallel Array Hash Table
 class ParallelArrayHashTable {
 private:
-    DynamicArrayNode *data;  
-    int capacity;           
-    int size;                
-    pthread_mutex_t tableLock; // Mutex for thread safety
+    vector<DynamicArrayNode> data;
+    int capacity;
+    int size;
+    mutex tableLock;
 
-    // Resize the array
     void resize() {
-        pthread_mutex_lock(&tableLock); // Lock the table
+        lock_guard<mutex> guard(tableLock);
         int newCapacity = capacity * 2;
-        DynamicArrayNode *newData = new DynamicArrayNode[newCapacity];
+        vector<DynamicArrayNode> newData(newCapacity);
         for (int i = 0; i < capacity; ++i) {
-            newData[i] = data[i];
+            if (data[i].isOccupied) {
+                size_t hashIndex = std::hash<int>()(data[i].key) % newCapacity;
+                while (newData[hashIndex].isOccupied) {
+                    hashIndex = (hashIndex + 1) % newCapacity;
+                }
+                newData[hashIndex] = data[i];
+            }
         }
-        delete[] data;
-        data = newData;
+        data = std::move(newData);
         capacity = newCapacity;
-        pthread_mutex_unlock(&tableLock); // Unlock the table
     }
 
 public:
-    // Constructor
-    ParallelArrayHashTable(int initialCapacity = 10) : capacity(initialCapacity), size(0) {
-        data = new DynamicArrayNode[capacity];
-        pthread_mutex_init(&tableLock, nullptr); // Initialize the mutex
+    ParallelArrayHashTable(int initialCapacity = 16) : capacity(initialCapacity), size(0) {
+        data.resize(capacity);
     }
 
-    ~ParallelArrayHashTable() {
-        delete[] data;
-        pthread_mutex_destroy(&tableLock); // Destroy the mutex
-    }
-
-    // Insert a key-value pair
     void insert(int key, int value) {
-        pthread_mutex_lock(&tableLock); // Lock the table
+        lock_guard<mutex> guard(tableLock);
         if (size == capacity) {
-            resize(); // Resize if necessary
+            resize();
         }
+        size_t hashIndex = std::hash<int>()(key) % capacity;
+        while (data[hashIndex].isOccupied) {
+            hashIndex = (hashIndex + 1) % capacity;
+        }
+        data[hashIndex] = DynamicArrayNode(key, value, true);
+        ++size;
+    }
+
+    void remove(int key) {
+        lock_guard<mutex> guard(tableLock);
+        size_t hashIndex = std::hash<int>()(key) % capacity;
         for (int i = 0; i < capacity; ++i) {
-            if (!data[i].isOccupied) { // Find the first empty slot
-                data[i].key = key;
-                data[i].value = value;
-                data[i].isOccupied = true;
-                size++;
-                pthread_mutex_unlock(&tableLock); // Unlock the table
+            if (data[hashIndex].isOccupied && data[hashIndex].key == key) {
+                data[hashIndex].isOccupied = false;
+                --size;
                 return;
             }
+            hashIndex = (hashIndex + 1) % capacity;
         }
-        pthread_mutex_unlock(&tableLock); // Unlock the table
     }
 
-    // Remove 
-    void remove(int key) {
-        pthread_mutex_lock(&tableLock); // Lock the table
-        try {
-            int index = search(key);
-            data[index].isOccupied = false;
-            size--;
-        } catch (runtime_error &e) {
-            // Key not found
-        }
-        pthread_mutex_unlock(&tableLock); // Unlock the table
-    }
-
-    // Update 
     void update(int key, int newValue) {
-        pthread_mutex_lock(&tableLock); // Lock the table
-        try {
-            int index = search(key);
-            data[index].value = newValue;
-        } catch (runtime_error &e) {
-            // Key not found
+        lock_guard<mutex> guard(tableLock);
+        size_t hashIndex = std::hash<int>()(key) % capacity;
+        for (int i = 0; i < capacity; ++i) {
+            if (data[hashIndex].isOccupied && data[hashIndex].key == key) {
+                data[hashIndex].value = newValue;
+                return;
+            }
+            hashIndex = (hashIndex + 1) % capacity;
         }
-        pthread_mutex_unlock(&tableLock); // Unlock the table
     }
 
-    // Search for index
-    int search(int key) const {
+    int searchValue(int key) const {
+        size_t hashIndex = std::hash<int>()(key) % capacity;
         for (int i = 0; i < capacity; ++i) {
-            if (data[i].isOccupied && data[i].key == key) {
-                return i; // Return the index
+            if (data[hashIndex].isOccupied && data[hashIndex].key == key) {
+                return data[hashIndex].value;
             }
+            hashIndex = (hashIndex + 1) % capacity;
         }
         throw runtime_error("Key not found");
     }
 
-    // Search for value
-    int searchValue(int key) const {
-        int index = search(key);
-        return data[index].value;
+    void batchInsert(const vector<int>& keys, const vector<int>& values) {
+        for (size_t i = 0; i < keys.size(); ++i) {
+            insert(keys[i], values[i]);
+        }
     }
 
-    // Batch in parallel
-    void batchExecute(const vector<string> &commands, int threads) {
+    void batchSearch(const vector<int>& keys, vector<int>& results) const {
+        for (const auto& key : keys) {
+            try {
+                results.push_back(searchValue(key));
+            } catch (const runtime_error&) {
+                results.push_back(-1); // Not found
+            }
+        }
+    }
+
+    void batchExecute(const vector<string>& commands, int threads) {
         auto threadFunc = [&](int start, int end) {
             for (int i = start; i < end; ++i) {
                 istringstream iss(commands[i]);
                 string op;
                 iss >> op;
 
-                if (op == "Insert") { // Insert
+                if (op == "Insert") {
                     int key, value;
                     iss >> key >> value;
                     insert(key, value);
-                    cout << "Inserted (" << key << ", " << value << ")" << endl;
-                } else if (op == "Remove") { // Remove
+                    cout << "Inserted: " << key << " -> " << value << endl;
+                } else if (op == "Remove") {
                     int key;
                     iss >> key;
                     remove(key);
-                    cout << "Removed key " << key << endl;
-                } else if (op == "Update") { // Update
+                    cout << "Removed: " << key << endl;
+                } else if (op == "Update") {
                     int key, value;
                     iss >> key >> value;
                     update(key, value);
-                    cout << "Updated key " << key << " to value " << value << endl;
-                } else if (op == "Search") { // Search
+                    cout << "Updated: " << key << " -> " << value << endl;
+                } else if (op == "Search") {
                     int key;
                     iss >> key;
                     try {
                         int result = searchValue(key);
-                        cout << result << endl; // Output only the value
-                    } catch (const runtime_error &e) {
-                        cout << "Key " << key << " not found" << endl;
+                        cout << "Search: " << key << " -> " << result << endl;
+                    } catch (const runtime_error&) {
+                        cout << "Search: " << key << " -> Not found" << endl;
                     }
+                } else if (op == "BI") { // Batch Insert
+                    int count;
+                    iss >> count;
+                    vector<int> keys(count), values(count);
+                    for (int i = 0; i < count; ++i) iss >> keys[i];
+                    for (int i = 0; i < count; ++i) iss >> values[i];
+                    batchInsert(keys, values);
+                    cout << "Batch Inserted: " << count << " items" << endl;
+                } else if (op == "BS") { // Batch Search
+                    int count;
+                    iss >> count;
+                    vector<int> keys(count), results;
+                    for (int i = 0; i < count; ++i) iss >> keys[i];
+                    batchSearch(keys, results);
+                    cout << "Batch Search Results: ";
+                    for (const auto& result : results) {
+                        cout << result << " ";
+                    }
+                    cout << endl;
                 }
             }
         };
@@ -154,7 +176,7 @@ public:
             threadPool.emplace_back(threadFunc, start, end);
         }
 
-        for (auto &t : threadPool) {
+        for (auto& t : threadPool) {
             t.join();
         }
     }
