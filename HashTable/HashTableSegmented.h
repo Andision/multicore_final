@@ -1,5 +1,4 @@
 #include "SinglyLinkedListSegmented.cpp"
-// #include "DynamicArray.h"
 #include "SimpleHash.h"
 #include <iostream>
 #include <omp.h>
@@ -20,13 +19,6 @@ private:
     }
 
 public:
-    // HashTableSegmented(int cap = DEFAULT_HASHTABLE_CAPACITY, int segSize = DEFAULT_SEGMENT_SIZE)
-    //     : table(cap), capacity(cap), size(0) {
-    //     for (int i = 0; i < capacity; ++i) {
-    //         table.push_back(SinglyLinkedListSegmented<K, V>(segSize));
-    //     }
-    // }
-
     HashTableSegmented(int segSize = DEFAULT_SEGMENT_SIZE)
         : capacity(DEFAULT_HASHTABLE_CAPACITY), size(0) {
         for (int i = 0; i < capacity; ++i) {

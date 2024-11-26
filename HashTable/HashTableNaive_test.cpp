@@ -1,4 +1,4 @@
-#include "HashTableNaive.cpp"
+#include "HashTableNaive.h"
 #include <iostream>
 
 using namespace std;
