@@ -165,19 +165,3 @@ void executeCommands(const vector<string>& commands, ArrayHashTable& hashTable) 
     }
 }
 
-int main() {
-    ArrayHashTable hashTable;
-    vector<string> commands = {
-        "Insert 1 10",
-        "Insert 2 20",
-        "BI 3 3 4 5 30 40 50",
-        "BS 2 1 5",
-        "Search 3",
-        "Update 3 35",
-        "Search 3",
-        "Remove 3",
-        "Search 3"
-    };
-    executeCommands(commands, hashTable);
-    return 0;
-}
