@@ -4,7 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <omp.h>
-#include "doublehashing_parallel.cpp" 
+#include "doublehashing_parallel4.cpp" 
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {
