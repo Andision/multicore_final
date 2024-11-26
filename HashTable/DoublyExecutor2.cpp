@@ -5,7 +5,6 @@
 #include <vector>
 #include <cstring>
 
-
 using namespace std;
 
 void processInput(const string &input, DoublyHashTable<int, int> &hashTable) {

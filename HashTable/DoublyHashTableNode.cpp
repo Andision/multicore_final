@@ -11,4 +11,3 @@ struct DoublyHashTableNode {
     DoublyHashTableNode() : key(K()), value(V()), isActive(false) {}
     DoublyHashTableNode(K k, V v) : key(k), value(v), isActive(true) {}
 };
-
