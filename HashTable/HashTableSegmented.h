@@ -65,6 +65,16 @@ public:
         return result;
     }
 
+    bool update(const K& key, const V& newValue) {
+        int index = hashFunction(key);
+        bool updated = false;
+        #pragma omp critical
+        {
+            updated = table[index].update(key, newValue);
+        }
+        return updated;
+    }
+
     V* search(const K& key) {
         int index = hashFunction(key);
         auto node = table[index].search(key);
