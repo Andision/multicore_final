@@ -1,5 +1,6 @@
 #include "SinglyLinkedList.cpp"
 #include <iostream>
+#include <vector>
 #define DEFAULT_HASHTABLE_CAPACITY 10
 using namespace std;
 
@@ -44,10 +45,46 @@ public:
         }
     }
 
-    V search(const K &key) {
+    bool update(const K &key, const V &value) {
         int index = hashFunction(key);
         SinglyLinkedListNode<K, V> *targetNode = table[index].search(key);
-        return targetNode->value;
+
+        if (!targetNode) {
+            return false;
+        } else {
+            targetNode->value == value;
+            return true;
+        }
+    }
+
+    V *search(const K &key) {
+        int index = hashFunction(key);
+        SinglyLinkedListNode<K, V> *targetNode = table[index].search(key);
+
+        if (targetNode) {
+            return &(targetNode->value);
+        } else {
+            return nullptr;
+        }
+    }
+
+    void batchInsert(const vector<K> keys, const vector<V> values) {
+        for (int i = 0; i < keys.size(); ++i) {
+            K key = keys[i];
+            V value = values[i];
+
+            insert(key, value);
+        }
+    }
+
+    vector<V *> batchSearch(const vector<K> keys) {
+        vector<V *> results;
+        for (int i = 0; i < keys.size(); ++i) {
+            K key = keys[i];
+
+            results.push_back(search(key));
+        }
+        return results;
     }
 
     void print() {
