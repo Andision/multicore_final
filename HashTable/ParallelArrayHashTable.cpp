@@ -27,7 +27,7 @@ private:
     mutex tableLock;
 
     void resize() {
-        lock_guard<mutex> guard(tableLock); // 加锁，确保线程安全
+        lock_guard<mutex> guard(tableLock); // lock
         cout << "Resizing hash table from capacity " << capacity << " to " << capacity * 2 << endl;
 
         int newCapacity = capacity * 2;
@@ -37,7 +37,7 @@ private:
             if (data[i].isOccupied) {
                 size_t hashIndex = std::hash<int>{}(data[i].key) % newCapacity;
 
-                // 添加限制，防止无限循环
+                // add limit
                 int probeCount = 0;
                 while (newData[hashIndex].isOccupied) {
                     hashIndex = (hashIndex + 1) % newCapacity;
