@@ -2,7 +2,7 @@
 #include <iostream>
 #include <omp.h>
 #include <vector>
-#define DEFAULT_SEGMENTS_SIZE 3
+#define DEFAULT_SEGMENTS_SIZE 10
 using namespace std;
 
 template <typename K, typename V>
@@ -16,7 +16,7 @@ private:
 
 public:
     SinglyLinkedListSegmented() : head(nullptr), tail(nullptr), segmentSize(DEFAULT_SEGMENTS_SIZE) {}
-    SinglyLinkedListSegmented(int seg) : head(nullptr), tail(nullptr), segmentSize(DEFAULT_SEGMENTS_SIZE) {}
+    SinglyLinkedListSegmented(int seg) : head(nullptr), tail(nullptr), segmentSize(seg) {}
 
     ~SinglyLinkedListSegmented() {
         SinglyLinkedListNode<K, V> *current = head;

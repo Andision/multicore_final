@@ -109,23 +109,26 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable) 
 }
 
 int main(int argc, char *argv[]) {
-    // // Check if the required argument is passed
-    // int capacity = -1;
-    // for (int i = 1; i < argc; ++i) {
-    //     if (strcmp(argv[i], "--capacity") == 0 && i + 1 < argc) {
-    //         capacity = atoi(argv[i + 1]); // Convert the next argument to an integer
-    //         break;
-    //     }
-    // }
+    int capacity = DEFAULT_HASHTABLE_CAPACITY;
+    int segmentSize = DEFAULT_SEGMENT_SIZE;
 
-    // if (capacity <= 0) {
-    //     cerr << "Error: You must provide a positive integer for --capacity.\n";
-    //     cerr << "Usage: ExecutorLinkedListNavie --capacity <positive_integer>\n";
-    //     return 1;
-    // }
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "--capacity") == 0 && i + 1 < argc) {
+            capacity = atoi(argv[i + 1]);
+            i++;
+        } else if (strcmp(argv[i], "--segmentsize") == 0 && i + 1 < argc) {
+            segmentSize = atoi(argv[i + 1]);
+            i++;
+        }
+    }
 
-    // HashTableSegmented<int, int> hashTable(capacity);
-    HashTableSegmented<int, int> hashTable;
+    if (capacity <= 0 || segmentSize <= 0) {
+        cerr << "Error: Both --capacity and --segmentsize must be positive integers.\n";
+        cerr << "Usage: ExecutorLinkedListSegmented --capacity <positive_integer> --segmentsize <positive_integer>\n";
+        return 1;
+    }
+
+    HashTableSegmented<int, int> hashTable(capacity, segmentSize);
 
     int N;
     scanf("%d\n", &N);
@@ -133,9 +136,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < N; ++i) {
         string line;
         getline(cin, line);
-        // cout << "line:" << line << endl;
         processInput(line, hashTable);
-        // hashTable.printSegments();
     }
 
     return 0;

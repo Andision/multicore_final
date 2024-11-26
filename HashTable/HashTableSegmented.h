@@ -9,7 +9,7 @@
 template <typename K, typename V>
 class HashTableSegmented {
 private:
-    SinglyLinkedListSegmented<K, V> table[DEFAULT_HASHTABLE_CAPACITY];
+    SinglyLinkedListSegmented<K, V> *table;
     int capacity;
     int size;
     std::hash<K> hasher;
@@ -19,14 +19,17 @@ private:
     }
 
 public:
-    HashTableSegmented(int segSize = DEFAULT_SEGMENT_SIZE)
-        : capacity(DEFAULT_HASHTABLE_CAPACITY), size(0) {
+    HashTableSegmented(int cap = DEFAULT_HASHTABLE_CAPACITY, int segSize = DEFAULT_SEGMENT_SIZE)
+        : capacity(cap), size(0) {
+        table = new SinglyLinkedListSegmented<K, V>[capacity];
         for (int i = 0; i < capacity; ++i) {
             table[i] = SinglyLinkedListSegmented<K, V>(segSize);
         }
     }
 
-    ~HashTableSegmented() = default;
+    ~HashTableSegmented() {
+        delete[] table;
+    }
 
     void insert(const K& key, const V& value) {
         int index = hashFunction(key);
