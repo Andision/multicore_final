@@ -1,7 +1,7 @@
 #include "SinglyLinkedList.cpp"
 #include <iostream>
 #include <vector>
-#define DEFAULT_HASHTABLE_CAPACITY 10
+#define DEFAULT_HASHTABLE_CAPACITY 1
 using namespace std;
 
 template <typename K, typename V>

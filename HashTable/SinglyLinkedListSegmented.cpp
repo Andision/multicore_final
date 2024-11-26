@@ -16,7 +16,7 @@ private:
 
 public:
     SinglyLinkedListSegmented() : head(nullptr), tail(nullptr), segmentSize(DEFAULT_SEGMENTS_SIZE) {}
-    SinglyLinkedListSegmented(int seg) : head(nullptr), tail(nullptr), segmentSize(seg) {}
+    SinglyLinkedListSegmented(int seg) : head(nullptr), tail(nullptr), segmentSize(DEFAULT_SEGMENTS_SIZE) {}
 
     ~SinglyLinkedListSegmented() {
         SinglyLinkedListNode<K, V> *current = head;
@@ -48,13 +48,15 @@ public:
         size++;
 
         if (segments.size() < segmentSize) {
-            segments.push_back(newNode);
+            if (size < segmentSize || size % segments.size() == 1) {
+                segments.push_back(newNode);
+            }
         } else if (size % segmentSize == 1) {
             int offset = 1;
             for (auto it = segments.begin() + 1; it != segments.end(); ++it) {
                 SinglyLinkedListNode<K, V> *pivot = *it;
                 int t = offset;
-                while (t) {
+                while (t && pivot) {
                     --t;
                     pivot = pivot->next;
                 }
@@ -62,7 +64,7 @@ public:
                 ++offset;
             }
 
-            if (*(segments.end() - 1) == nullptr) {
+            while (*(segments.end() - 1) == nullptr) {
                 segments.pop_back();
             }
         }
@@ -126,11 +128,8 @@ public:
         bool stop = false;
         vector<SinglyLinkedListNode<K, V> *> res = {nullptr, nullptr};
 
-        #pragma omp parallel for shared(stop, res)
+#pragma omp parallel for shared(stop, res) num_threads(segments.size())
         for (int i = 0; i < segments.size(); ++i) {
-            if (stop) {
-                break;
-            }
 
             SinglyLinkedListNode<K, V> *current = segments[i];
             SinglyLinkedListNode<K, V> *previous = nullptr;
@@ -141,34 +140,39 @@ public:
             }
 
             while (current != end) {
+                if (stop) {
+                    break;
+                }
                 if (current->key == key) {
+                    stop = true;
                     break;
                 }
                 previous = current;
                 current = current->next;
             }
 
-            if (current != head && previous == nullptr) {
-                SinglyLinkedListNode<K, V> *pivot = segments[i - 1];
-                while (pivot->next != current) {
-                    pivot = pivot->next;
+            if (current->key == key) {
+                if (current != head && previous == nullptr) {
+                    SinglyLinkedListNode<K, V> *pivot = segments[i - 1];
+                    while (pivot->next != current) {
+                        pivot = pivot->next;
+                    }
+                    previous = pivot;
                 }
-                previous = pivot;
+
+#pragma omp critical
+                res = {previous, current};
             }
-
-            #pragma omp critical
-            res = {previous, current};
-
-            break;
         }
 
         return res;
     }
 
     void printSegments() {
-        cout << "printSegments:" << endl;
+        cout << "printSegments: ";
         for (auto it = segments.begin(); it != segments.end(); ++it) {
-            cout << (*it)->key << endl;
+            cout << (*it)->key << ' ';
         }
+        cout << endl;
     }
 };

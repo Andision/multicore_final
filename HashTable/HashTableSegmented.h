@@ -1,10 +1,10 @@
-#include "NewSinglyLinkedListSegmented.cpp"
+#include "SinglyLinkedListSegmented.cpp"
 // #include "DynamicArray.h"
 #include "SimpleHash.h"
 #include <iostream>
 #include <omp.h>
 
-#define DEFAULT_HASHTABLE_CAPACITY 10
+#define DEFAULT_HASHTABLE_CAPACITY 1
 #define DEFAULT_SEGMENT_SIZE 10
 
 template <typename K, typename V>

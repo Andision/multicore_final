@@ -133,7 +133,9 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < N; ++i) {
         string line;
         getline(cin, line);
+        // cout << "line:" << line << endl;
         processInput(line, hashTable);
+        // hashTable.printSegments();
     }
 
     return 0;
