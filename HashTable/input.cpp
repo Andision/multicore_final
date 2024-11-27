@@ -28,7 +28,7 @@ int main() {
 
         // 关闭文件
         outFile.close();
-        cout << "Output written to file 'output.txt' successfully!" << endl;
+        cout << "Output written to file 'input.txt' successfully!" << endl;
     } else {
         cerr << "Error: Could not open file!" << endl;
     }
