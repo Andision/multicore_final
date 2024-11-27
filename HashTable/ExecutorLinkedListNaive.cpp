@@ -63,7 +63,9 @@ void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
             }
             if (command == "BI") {
                 hashTable.batchInsert(keys, values);
-                cout << "command finished" << endl;
+                for (int i = 0; i < B; ++i) {
+                    cout << keys[i] << " " << values[i] << endl;
+                }
             } else {
                 cout << "Not Implemented" << endl;
             }

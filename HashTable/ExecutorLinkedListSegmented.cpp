@@ -66,7 +66,9 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable) 
                 int *valuesArray = values.data();
                 int count = keys.size();
                 hashTable.batchInsert(keysArray, valuesArray, count);
-                cout << "command finished" << endl;
+                for (int i = 0; i < count; ++i) {
+                    cout << keysArray[i] << " " << valuesArray[i] << endl;
+                }
             } else {
                 cout << "Not Implemented" << endl;
             }

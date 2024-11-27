@@ -1,16 +1,21 @@
 #include <iostream>
 #include <fstream> // 用于文件操作
+#include <sstream> // 用于生成动态文件名
 using namespace std;
 
 int main() {
-    int N = 100000;
-    int S = 1000000;
+    int N = 50000;
+    int S = 500000;
 
     // 计算总和
     int sum = S + N;
 
+    // 动态生成文件名
+    stringstream fileName;
+    fileName << "I" << N << "S" << S << ".txt";
+
     // 打开输出文件
-    ofstream outFile("input.txt");
+    ofstream outFile(fileName.str());
 
     // 写入总和
     if (outFile.is_open()) {
@@ -21,14 +26,14 @@ int main() {
             outFile << "I " << i << " " << i << endl;
         }
 
-        // 第二个循环：输出 "S N-1"
+        // 第二个循环：输出 "S 6666"
         for (int i = 0; i < S; i++) {
-            outFile << "S " << (66669) << endl;
+            outFile << "S " << (6666) << endl;
         }
 
         // 关闭文件
         outFile.close();
-        cout << "Output written to file 'input.txt' successfully!" << endl;
+        cout << "Output written to file '" << fileName.str() << "' successfully!" << endl;
     } else {
         cerr << "Error: Could not open file!" << endl;
     }
