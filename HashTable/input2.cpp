@@ -5,8 +5,8 @@ using namespace std;
 
 int main() {
     // 固定批量大小
-    int BI_B = 10;   // 批量插入的数量
-    int BS_B = 10;  // 批量查询的数量
+    int BI_B = 50000;   // 批量插入的数量
+    int BS_B = 500000;  // 批量查询的数量
 
     // 动态生成文件名
     stringstream fileName;
