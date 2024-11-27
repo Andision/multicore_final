@@ -1,4 +1,4 @@
-#include "HashTableNaive.h"
+#include <unordered_map>
 #include <cctype>
 #include <cstdlib> // for atoi
 #include <cstring> // for strcmp
@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
+void processInput(const string &input, unordered_map<int, int> &hashTable) {
     istringstream iss(input);
     string command;
     iss >> command;
@@ -18,11 +18,17 @@ void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
         int x, y;
         if (iss >> x >> y) {
             if (command == "I") {
-                hashTable.insert(x, y);
+                hashTable.insert(make_pair(x, y));
                 cout << x << ' ' << y << endl;
             } else {
-                bool result = hashTable.update(x, y);
-                cout << (result ? "true" : "false") << endl;
+                auto it = hashTable.find(x);
+                if(it == hashTable.end()){
+                    cout<<"false"<<endl;
+                }
+                else{
+                    it -> second = y;
+                    cout<<"true"<<endl;
+                }
             }
         } else {
             cerr << "Invalid input format for command " << command << "\n";
@@ -31,12 +37,13 @@ void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
         int x;
         if (iss >> x) {
             if (command == "R") {
-                bool result = hashTable.remove(x);
-                cout << (result ? "true" : "false") << endl;
+                hashTable.erase(x);
+                cout << endl;
+                // cout << (result ? "true" : "false") << endl;
             } else {
-                int *result = hashTable.search(x);
-                if (result) {
-                    cout << *result << endl;
+                auto it = hashTable.find(x);
+                if (it != hashTable.end()) {
+                    cout << it -> second << endl;
                 } else {
                     cout << "null" << endl;
                 }
@@ -61,8 +68,13 @@ void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
                 }
             }
             if (command == "BI") {
-                hashTable.batchInsert(keys, values);
-                cout << "command finished" << endl;
+                for(int i=0;i<keys.size();++i){
+                    int key = keys[i];
+                    int value = values[i];
+                    
+                    hashTable[key] = value;
+                }
+                cout<<endl;
             } else {
                 cout << "Not Implemented" << endl;
             }
@@ -80,12 +92,14 @@ void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
                 }
             }
             if (command == "BS") {
-                vector<int *> results = hashTable.batchSearch(numbers);
-                for (auto it = results.begin(); it != results.end(); ++it) {
-                    if (*it) {
-                        cout << *(*it) << ' ';
-                    } else {
-                        cout << "null" << ' ';
+                for(auto it = numbers.begin();it != numbers.end(); ++it){
+                    int key = *it;
+                    auto result = hashTable.find(key);
+                    if(result == hashTable.end()){
+                        cout<<"null ";
+                    }
+                    else{
+                        cout<<result->second<<' ';
                     }
                 }
                 cout << endl;
@@ -116,7 +130,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    HashTableNaive<int, int> hashTable(capacity);
+    unordered_map<int, int> hashTable;
 
     int N;
     scanf("%d\n", &N);

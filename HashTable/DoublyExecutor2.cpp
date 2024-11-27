@@ -5,7 +5,6 @@
 #include <vector>
 #include <cstring>
 
-
 using namespace std;
 
 void processInput(const string &input, DoublyHashTable<int, int> &hashTable) {
@@ -17,8 +16,9 @@ void processInput(const string &input, DoublyHashTable<int, int> &hashTable) {
         int x, y;
         if (iss >> x >> y) {
             if (command == "I") {
-                hashTable.insert(x, y);
-                cout << x << ' ' << y << endl;
+                if (hashTable.insert(x, y)) {
+                    cout << x << ' ' << y << endl;
+                }
             } else {
                 bool result = hashTable.update(x, y);
                 cout << (result ? "true" : "false") << endl;

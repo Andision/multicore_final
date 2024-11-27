@@ -34,7 +34,18 @@ private:
         return -1; // Hash table is full or key not found
     }
 
+    void deepCopy(const DoublyHashTable &other) {
+        table = new DoublyHashTableNode<K, V>[other.capacity];
+        for (int i = 0; i < other.capacity; ++i) {
+            table[i] = other.table[i];
+        }
+        capacity = other.capacity;
+        size = other.size;
+        hasher = other.hasher;
+    }
+
 public:
+    // Constructors and Destructor
     DoublyHashTable() : capacity(DEFAULT_HASHTABLE_CAPACITY), size(0) {
         table = new DoublyHashTableNode<K, V>[capacity];
     }
@@ -47,19 +58,45 @@ public:
         delete[] table;
     }
 
-    void insert(const K &key, const V &value) {
+    // Copy Constructor
+    DoublyHashTable(const DoublyHashTable &other) {
+        deepCopy(other);
+    }
+
+    // Copy Assignment Operator
+    DoublyHashTable &operator=(const DoublyHashTable &other) {
+        if (this != &other) {
+            delete[] table;
+            deepCopy(other);
+        }
+        return *this;
+    }
+
+    // Disable Move Constructor and Move Assignment Operator
+    DoublyHashTable(DoublyHashTable &&) = delete;
+    DoublyHashTable &operator=(DoublyHashTable &&) = delete;
+
+    // Methods
+    bool insert(const K &key, const V &value) {
         if (size == capacity) {
             cerr << "HashTable is full!\n";
-            return;
+            return false;
         }
 
         int index = findIndex(key);
+
+        if (table[index].isActive && table[index].key == key) {
+            cerr << "Key " << key << " already exists. Insert skipped.\n";
+            return false;
+        }
 
         if (!table[index].isActive) {
             size++;
         }
 
         table[index] = DoublyHashTableNode<K, V>(key, value);
+
+        return true;
     }
 
     bool remove(const K &key) {
@@ -118,4 +155,3 @@ public:
         }
     }
 };
-

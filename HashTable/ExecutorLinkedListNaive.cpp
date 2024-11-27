@@ -1,4 +1,4 @@
-#include "HashTableSegmented.h"
+#include "HashTableNaive.h"
 #include <cctype>
 #include <cstdlib> // for atoi
 #include <cstring> // for strcmp
@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void processInput(const string &input, HashTableSegmented<int, int> &hashTable, long long &biTime, long long &bsTime) {
+void processInput(const string &input, HashTableNaive<int, int> &hashTable, long long &biTime, long long &bsTime) {
     istringstream iss(input);
     string command;
     iss >> command;
@@ -64,12 +64,12 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable, 
             }
             if (command == "BI") {
                 auto start = chrono::high_resolution_clock::now();
-                hashTable.batchInsert(keys.data(), values.data(), B);
+                hashTable.batchInsert(keys, values);
                 auto end = chrono::high_resolution_clock::now();
                 biTime += chrono::duration_cast<chrono::microseconds>(end - start).count();
 
                 // for (int i = 0; i < B; ++i) {
-                //     cout << keys.data()[i] << " " << values.data()[i] << endl;
+                //     cout << keys[i] << " " << values[i] << endl;
                 // }
             } else {
                 cout << "Not Implemented" << endl;
@@ -89,22 +89,18 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable, 
             }
             if (command == "BS") {
                 auto start = chrono::high_resolution_clock::now();
-                int **results = new int *[B];
-                hashTable.batchSearch(numbers.data(), results, B);
+                vector<int *> results = hashTable.batchSearch(numbers);
                 auto end = chrono::high_resolution_clock::now();
                 bsTime += chrono::duration_cast<chrono::microseconds>(end - start).count();
 
-                // for (int i = 0; i < B; ++i) {
-                //     int *pointer = results[i];
-                //     if (pointer) {
-                //         cout << *pointer << ' ';
+                // for (auto it = results.begin(); it != results.end(); ++it) {
+                //     if (*it) {
+                //         cout << *(*it) << ' ';
                 //     } else {
                 //         cout << "null" << ' ';
                 //     }
                 // }
                 // cout << endl;
-
-                delete[] results;
             } else {
                 cout << "Not Implemented" << endl;
             }
@@ -117,26 +113,22 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable, 
 }
 
 int main(int argc, char *argv[]) {
-    int capacity = DEFAULT_HASHTABLE_CAPACITY;
-    int segmentSize = DEFAULT_SEGMENT_SIZE;
-
+    // Check if the required argument is passed
+    int capacity = -1;
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--capacity") == 0 && i + 1 < argc) {
-            capacity = atoi(argv[i + 1]);
-            i++;
-        } else if (strcmp(argv[i], "--segmentsize") == 0 && i + 1 < argc) {
-            segmentSize = atoi(argv[i + 1]);
-            i++;
+            capacity = atoi(argv[i + 1]); // Convert the next argument to an integer
+            break;
         }
     }
 
-    if (capacity <= 0 || segmentSize <= 0) {
-        cerr << "Error: Both --capacity and --segmentsize must be positive integers.\n";
-        cerr << "Usage: ExecutorLinkedListSegmented --capacity <positive_integer> --segmentsize <positive_integer>\n";
+    if (capacity <= 0) {
+        cerr << "Error: You must provide a positive integer for --capacity.\n";
+        cerr << "Usage: ExecutorLinkedListNavie --capacity <positive_integer>\n";
         return 1;
     }
 
-    HashTableSegmented<int, int> hashTable(capacity, segmentSize);
+    HashTableNaive<int, int> hashTable(capacity);
 
     int N;
     scanf("%d\n", &N);

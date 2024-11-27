@@ -61,7 +61,9 @@ public:
         size++;
 
         if (segmentCount < DEFAULT_SEGMENTS_SIZE) {
-            segments[segmentCount++] = newNode;
+            if (size < segmentSize || size % segmentCount == 1) {
+                segments[segmentCount++] = newNode;
+            }
         } else if (size % segmentSize == 1) {
             int offset = 1;
             for (int i = 1; i < segmentCount; ++i) {
@@ -75,7 +77,7 @@ public:
                 ++offset;
             }
 
-            if (segments[segmentCount - 1] == nullptr) {
+            while (segments[segmentCount - 1] == nullptr) {
                 --segmentCount;
             }
         }
@@ -84,27 +86,31 @@ public:
     bool remove(K key) {
         SearchResult<K, V> result = searchWithPrev(key);
 
-        if (!result.current) {
+        SinglyLinkedListNode<K, V>* previous = result.previous;
+        SinglyLinkedListNode<K, V>* current = result.current;
+
+        if (!current) {
             return false;
         }
 
-        if (result.current == tail) {
-            tail = result.previous;
+         if (current == tail) {
+            tail = previous;
         }
 
 
-        SinglyLinkedListNode<K, V>* next = result.current->next;
-        if (result.previous) {
-            result.previous->next = next;
+        SinglyLinkedListNode<K, V>* next = current->next;
+        if (previous) {
+            previous->next = next;
         } else {
             head = next;
         }
 
-        delete result.current;
+        delete current;
         size--;
 
         segmentCount = 0;
         SinglyLinkedListNode<K, V>* temp = head;
+
         while (temp && segmentCount < DEFAULT_SEGMENTS_SIZE) {
             segments[segmentCount++] = temp;
             for (int i = 0; i < segmentSize - 1 && temp; ++i) {
@@ -132,40 +138,37 @@ public:
         bool stop = false;
         SearchResult<K, V> res = {nullptr, nullptr};
 
-        #pragma omp parallel for shared(stop, res)
+        #pragma omp parallel for shared(stop, res) num_threads(segmentCount)
         for (int i = 0; i < segmentCount; ++i) {
-            if (stop) continue;
-
             SinglyLinkedListNode<K, V>* current = segments[i];
             SinglyLinkedListNode<K, V>* previous = nullptr;
-
-            if (i > 0) {
-                SinglyLinkedListNode<K, V>* pivot = segments[i - 1];
-                while (pivot->next != current) {
-                    pivot = pivot->next;
-                }
-                previous = pivot;
-            }
-
             SinglyLinkedListNode<K, V>* end = (i + 1 < segmentCount) ? segments[i + 1] : nullptr;
 
             while (current != end) {
-                if (stop) break;
-
-                if (current->key == key) {
-                    #pragma omp critical
-                    {
-                        if (!stop) {
-                            res.previous = previous;
-                            res.current = current;
-                            stop = true;
-                        }
-                    }
+                if (stop || current == nullptr) {
                     break;
                 }
-
+                if (current->key == key) {
+                    stop = true;
+                    break;
+                }
                 previous = current;
                 current = current->next;
+            }
+
+            if (current != nullptr && current->key == key) {
+                if (i > 0 && previous == nullptr) {
+                    SinglyLinkedListNode<K, V>* pivot = segments[i - 1];
+                    while (pivot->next != current) {
+                        pivot = pivot->next;
+                    }
+                    previous = pivot;
+                }
+
+                #pragma omp critical(search_critical)
+                {
+                    res = {previous, current};
+                }
             }
         }
 
@@ -173,7 +176,6 @@ public:
     }
 
     void printSegments() {
-        cout << "printSegments:" << endl;
         for (int i = 0; i < segmentCount; ++i) {
             if (segments[i]) {
                 cout << segments[i]->key << endl;

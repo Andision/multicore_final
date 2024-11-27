@@ -29,10 +29,18 @@ public:
         delete[] table;
     }
 
-    void insert(const K &key, const V &value) {
+    bool insert(const K &key, const V &value) {
         int index = hashFunction(key);
+
+        if (search(key) != nullptr) {
+            std::cerr << "Key " << key << " already exists. Insert skipped.\n";
+            return false;
+        }
+
         table[index].insertAtHead(key, value);
         size++;
+
+        return true;
     }
 
     bool remove(const K &key) {
@@ -52,7 +60,7 @@ public:
         if (!targetNode) {
             return false;
         } else {
-            targetNode->value == value;
+            targetNode->value = value;
             return true;
         }
     }
@@ -69,7 +77,7 @@ public:
     }
 
     void batchInsert(const vector<K> keys, const vector<V> values) {
-        for (int i = 0; i < keys.size(); ++i) {
+        for (int i = 0; i < static_cast<int>(keys.size()); ++i) {
             K key = keys[i];
             V value = values[i];
 
@@ -79,7 +87,7 @@ public:
 
     vector<V *> batchSearch(const vector<K> keys) {
         vector<V *> results;
-        for (int i = 0; i < keys.size(); ++i) {
+        for (int i = 0; i < static_cast<int>(keys.size()); ++i) {
             K key = keys[i];
 
             results.push_back(search(key));

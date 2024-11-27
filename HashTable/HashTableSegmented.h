@@ -9,7 +9,7 @@
 template <typename K, typename V>
 class HashTableSegmented {
 private:
-    SinglyLinkedListSegmented<K, V> table[DEFAULT_HASHTABLE_CAPACITY];
+    SinglyLinkedListSegmented<K, V> *table;
     int capacity;
     int size;
     std::hash<K> hasher;
@@ -19,25 +19,36 @@ private:
     }
 
 public:
-    HashTableSegmented(int segSize = DEFAULT_SEGMENT_SIZE)
-        : capacity(DEFAULT_HASHTABLE_CAPACITY), size(0) {
+    HashTableSegmented(int cap = DEFAULT_HASHTABLE_CAPACITY, int segSize = DEFAULT_SEGMENT_SIZE)
+        : capacity(cap), size(0) {
+        table = new SinglyLinkedListSegmented<K, V>[capacity];
         for (int i = 0; i < capacity; ++i) {
             table[i] = SinglyLinkedListSegmented<K, V>(segSize);
         }
     }
 
-    ~HashTableSegmented() = default;
+    ~HashTableSegmented() {
+        delete[] table;
+    }
 
-    void insert(const K& key, const V& value) {
+    bool insert(const K& key, const V& value) {
         int index = hashFunction(key);
+
+        if (search(key) != nullptr) {
+            std::cerr << "Key " << key << " already exists. Insert skipped.\n";
+            return false;
+        }
+
         #pragma omp critical
         {
             table[index].insertAtTail(key, value);
             size++;
         }
+
+        return true;
     }
 
-    void insertMultiple(const K* keys, const V* values, int count) {
+    void batchInsert(const K* keys, const V* values, int count) {
         #pragma omp parallel for
         for (int i = 0; i < count; ++i) {
             insert(keys[i], values[i]);
@@ -47,7 +58,7 @@ public:
     bool remove(const K& key) {
         int index = hashFunction(key);
         bool result = false;
-        #pragma omp critical
+        #pragma omp critical(remove_critical)
         {
             result = table[index].remove(key);
             if (result) {
@@ -73,7 +84,7 @@ public:
         return node ? &(node->value) : nullptr;
     }
 
-    void searchMultiple(const K* keys, V** results, int count) {
+    void batchSearch(const K* keys, V** results, int count) {
         #pragma omp parallel for
         for (int i = 0; i < count; ++i) {
             results[i] = search(keys[i]);
@@ -89,7 +100,7 @@ public:
 
     void printSegments() {
         for (int i = 0; i < capacity; ++i) {
-            std::cout << "Bucket " << i << " segments:" << std::endl;
+            std::cout << "Bucket " << i << " segments:";
             table[i].printSegments();
         }
     }
