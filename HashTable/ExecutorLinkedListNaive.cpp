@@ -6,10 +6,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <chrono> // 用于计时
 
 using namespace std;
 
-void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
+void processInput(const string &input, HashTableNaive<int, int> &hashTable, long long &biTime, long long &bsTime) {
     istringstream iss(input);
     string command;
     iss >> command;
@@ -62,10 +63,14 @@ void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
                 }
             }
             if (command == "BI") {
+                auto start = chrono::high_resolution_clock::now();
                 hashTable.batchInsert(keys, values);
-                for (int i = 0; i < B; ++i) {
-                    cout << keys[i] << " " << values[i] << endl;
-                }
+                auto end = chrono::high_resolution_clock::now();
+                biTime += chrono::duration_cast<chrono::microseconds>(end - start).count();
+
+                // for (int i = 0; i < B; ++i) {
+                //     cout << keys[i] << " " << values[i] << endl;
+                // }
             } else {
                 cout << "Not Implemented" << endl;
             }
@@ -83,15 +88,19 @@ void processInput(const string &input, HashTableNaive<int, int> &hashTable) {
                 }
             }
             if (command == "BS") {
+                auto start = chrono::high_resolution_clock::now();
                 vector<int *> results = hashTable.batchSearch(numbers);
-                for (auto it = results.begin(); it != results.end(); ++it) {
-                    if (*it) {
-                        cout << *(*it) << ' ';
-                    } else {
-                        cout << "null" << ' ';
-                    }
-                }
-                cout << endl;
+                auto end = chrono::high_resolution_clock::now();
+                bsTime += chrono::duration_cast<chrono::microseconds>(end - start).count();
+
+                // for (auto it = results.begin(); it != results.end(); ++it) {
+                //     if (*it) {
+                //         cout << *(*it) << ' ';
+                //     } else {
+                //         cout << "null" << ' ';
+                //     }
+                // }
+                // cout << endl;
             } else {
                 cout << "Not Implemented" << endl;
             }
@@ -124,10 +133,18 @@ int main(int argc, char *argv[]) {
     int N;
     scanf("%d\n", &N);
 
+    long long biTime = 0;
+    long long bsTime = 0;
+
     for (int i = 0; i < N; ++i) {
         string line;
         getline(cin, line);
-        processInput(line, hashTable);
+        processInput(line, hashTable, biTime, bsTime);
+    }
+
+    double totalTimeInSeconds = (biTime + bsTime) / 1e6;
+    if (biTime > 0) {
+        cout << "Real Time: " << totalTimeInSeconds << " s" << endl;
     }
 
     return 0;

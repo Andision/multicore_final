@@ -6,10 +6,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <chrono> // 用于计时
 
 using namespace std;
 
-void processInput(const string &input, HashTableSegmented<int, int> &hashTable) {
+void processInput(const string &input, HashTableSegmented<int, int> &hashTable, long long &biTime, long long &bsTime) {
     istringstream iss(input);
     string command;
     iss >> command;
@@ -62,13 +63,14 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable) 
                 }
             }
             if (command == "BI") {
-                int *keysArray = keys.data();
-                int *valuesArray = values.data();
-                int count = keys.size();
-                hashTable.batchInsert(keysArray, valuesArray, count);
-                for (int i = 0; i < count; ++i) {
-                    cout << keysArray[i] << " " << valuesArray[i] << endl;
-                }
+                auto start = chrono::high_resolution_clock::now();
+                hashTable.batchInsert(keys.data(), values.data(), B);
+                auto end = chrono::high_resolution_clock::now();
+                biTime += chrono::duration_cast<chrono::microseconds>(end - start).count();
+
+                // for (int i = 0; i < B; ++i) {
+                //     cout << keys.data()[i] << " " << values.data()[i] << endl;
+                // }
             } else {
                 cout << "Not Implemented" << endl;
             }
@@ -86,20 +88,23 @@ void processInput(const string &input, HashTableSegmented<int, int> &hashTable) 
                 }
             }
             if (command == "BS") {
-                int *numbersArray = numbers.data();
-                int count = numbers.size();
-                int **results = new int *[count];
+                auto start = chrono::high_resolution_clock::now();
+                int **results = new int *[B];
+                hashTable.batchSearch(numbers.data(), results, B);
+                auto end = chrono::high_resolution_clock::now();
+                bsTime += chrono::duration_cast<chrono::microseconds>(end - start).count();
 
-                hashTable.batchSearch(numbersArray, results, count);
-                for (int i = 0; i < count; ++i) {
-                    int *pointer = results[i];
-                    if (pointer) {
-                        cout << *pointer << ' ';
-                    } else {
-                        cout << "null" << ' ';
-                    }
-                }
-                cout << endl;
+                // for (int i = 0; i < B; ++i) {
+                //     int *pointer = results[i];
+                //     if (pointer) {
+                //         cout << *pointer << ' ';
+                //     } else {
+                //         cout << "null" << ' ';
+                //     }
+                // }
+                // cout << endl;
+
+                delete[] results;
             } else {
                 cout << "Not Implemented" << endl;
             }
@@ -136,10 +141,18 @@ int main(int argc, char *argv[]) {
     int N;
     scanf("%d\n", &N);
 
+    long long biTime = 0;
+    long long bsTime = 0;
+
     for (int i = 0; i < N; ++i) {
         string line;
         getline(cin, line);
-        processInput(line, hashTable);
+        processInput(line, hashTable, biTime, bsTime);
+    }
+
+    double totalTimeInSeconds = (biTime + bsTime) / 1e6;
+    if (biTime > 0) {
+        cout << "Real Time: " << totalTimeInSeconds << " s" << endl;
     }
 
     return 0;
