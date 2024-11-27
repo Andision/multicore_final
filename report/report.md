@@ -398,6 +398,67 @@ We generate a random input with 20000 input operations and 200000 search operati
 | Segmented  | 50       | 20           | 6.57     |
 | Segmented  | 50       | 50           | 11.15    |
 
+We also run the experiments with 50000 input operations and 500000 search operations. The following table summarizes the running times of the naive and segmented hash table implementations under various capacities and segment sizes:
+
+| Version    | Capacity | Segment Size | Real Time  |
+|------------|----------|--------------|------------|
+| Naive      | 1        | -            | 2m50.56s   |
+| Segmented  | 1        | 2            | 42.68s     |
+| Segmented  | 1        | 5            | 36.68s     |
+| Segmented  | 1        | 10           | 19.15s     |
+| Segmented  | 1        | 20           | 23.86s     |
+| Segmented  | 1        | 50           | 38.64s     |
+| Naive      | 2        | -            | 2m10.26s   |
+| Segmented  | 2        | 2            | 32.29s     |
+| Segmented  | 2        | 5            | 29.78s     |
+| Segmented  | 2        | 10           | 17.33s     |
+| Segmented  | 2        | 20           | 19.44s     |
+| Segmented  | 2        | 50           | 30.51s     |
+| Naive      | 5        | -            | 55.72s     |
+| Segmented  | 5        | 2            | 18.58s     |
+| Segmented  | 5        | 5            | 18.87s     |
+| Segmented  | 5        | 10           | 13.88s     |
+| Segmented  | 5        | 20           | 17.78s     |
+| Segmented  | 5        | 50           | 31.72s     |
+| Naive      | 10       | -            | 33.24s     |
+| Segmented  | 10       | 2            | 13.88s     |
+| Segmented  | 10       | 5            | 14.87s     |
+| Segmented  | 10       | 10           | 13.29s     |
+| Segmented  | 10       | 20           | 15.83s     |
+| Segmented  | 10       | 50           | 28.89s     |
+| Naive      | 20       | -            | 22.85s     |
+| Segmented  | 20       | 2            | 13.07s     |
+| Segmented  | 20       | 5            | 13.40s     |
+| Segmented  | 20       | 10           | 12.53s     |
+| Segmented  | 20       | 20           | 15.23s     |
+| Segmented  | 20       | 50           | 29.08s     |
+| Naive      | 50       | -            | 13.83s     |
+| Segmented  | 50       | 2            | 11.10s     |
+| Segmented  | 50       | 5            | 12.30s     |
+| Segmented  | 50       | 10           | 12.94s     |
+| Segmented  | 50       | 20           | 16.19s     |
+| Segmented  | 50       | 50           | 25.65s     |
+
+We also implement the `batch` operation for `insert` and `search`. The `batch ` function use multi-threads at bucket level, which will significantly speed up the performance. The experiments run with 50000 input operations and 500000 search operations. The following table summarizes the running times of the naive and segmented hash table implementations under various capacities and segment sizes:
+
+| Version   | Capacity | Segment Size | Real Time  |
+| --------- | -------- | ------------ | ---------- |
+| Naive     | 1        | -            | 1min35.48s |
+| Segmented | 1        | 2            | 8.40s      |
+| Segmented | 1        | 5            | 8.00s      |
+| Segmented | 1        | 10           | 7.76s      |
+| Naive     | 2        | -            | 1min9.21s  |
+| Segmented | 2        | 2            | 4.37s      |
+| Segmented | 2        | 5            | 4.88s      |
+| Naive     | 5        | -            | 28.60s     |
+| Segmented | 5        | 2            | 2.15s      |
+| Segmented | 5        | 5            | 2.13s      |
+| Segmented | 5        | 10           | 2.12s      |
+| Naive     | 20       | -            | 9.80s      |
+| Segmented | 20       | 2            | 5.09s      |
+| Segmented | 20       | 5            | 4.75s      |
+| Segmented | 20       | 10           | 5.33s      |
+
 ### Analysis of Results
 
 #### Impact of Capacity on Performance
