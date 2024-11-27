@@ -402,37 +402,31 @@ We generate a random input with 20000 input operations and 200000 search operati
 
 #### Impact of Capacity on Performance
 
-Observation 1: As the capacity of the hash table increases, the running time for both the naive and segmented implementations decreases.
+**Observation 1**: As the capacity of the hash table increases, the running time for both the naive and segmented implementations decreases.
 
 Increasing the capacity reduces the load factor (ratio of elements to buckets), thereby decreasing the collision rate. With fewer collisions, the average length of the linked lists in each bucket shortens, leading to faster search and insertion operations.
 
-
-
-Observation 2: The performance improvement is more significant in the naive implementation as capacity increases.
+**Observation 2**: The performance improvement is more significant in the naive implementation as capacity increases.
 
 The naive implementation benefits directly from reduced collision rates because its linked lists become shorter, and there's minimal overhead. In contrast, the segmented implementation introduces additional overhead for segment management and parallelization, which may not be fully offset by performance gains at higher capacities.
 
 #### Comparison Between Naive and Segmented Implementations
 
-Observation 3: At lower capacities (1, 2, 5, 10), the segmented implementation outperforms the naive implementation for certain segment sizes.
+**Observation 3**: At lower capacities (1, 2, 5, 10), the segmented implementation outperforms the naive implementation for certain segment sizes.
 
  In scenarios with high collision rates (low capacities), the linked lists in each bucket are longer. The segmented implementation leverages parallelism to divide the long linked lists into segments that can be searched concurrently, thus reducing the overall search time.
 
-
-
-Observation 4: At higher capacities (20, 50), the naive implementation often matches or outperforms the segmented implementation.
+**Observation 4**: At higher capacities (20, 50), the naive implementation often matches or outperforms the segmented implementation.
 
 With higher capacities, the linked lists are shorter due to fewer collisions, diminishing the benefits of parallelizing the search over segments. Additionally, the overhead associated with managing segments and threads in the segmented implementation may outweigh its advantages when the data is already efficiently organized.
 
 #### Effect of Segment Size on Segmented Implementation
 
-Observation 5: There is an optimal segment size that yields the best performance for the segmented implementation, typically around segment sizes of 5 or 10.
+**Observation 5**: There is an optimal segment size that yields the best performance for the segmented implementation, typically around segment sizes of 5 or 10.
 
 Segment size determines the number of segments and, consequently, the level of parallelism. A smaller segment size increases the number of segments (and threads), enhancing parallelism but also introducing more overhead due to thread management and synchronization. Conversely, a larger segment size reduces parallelism and may lead to longer per-thread processing times.
 
-
-
-Observation 6: Very small (e.g., segment size 2) or very large segment sizes (e.g., segment size 50) result in poorer performance.
+**Observation 6**: Very small (e.g., segment size 2) or very large segment sizes (e.g., segment size 50) result in poorer performance.
 
 While they maximize parallelism, the overhead of managing a large number of threads can degrade performance. Context switching and synchronization costs become significant.
 
@@ -501,3 +495,10 @@ In  summary, our segmented singly linked list enhances hash table  performance i
 5. M. T. Goodrich, R. Tamassia, and D. M. Mount, *Data Structures and Algorithms in C++*, 2nd ed. Wiley, 2011.
 
 6. A. Brodnik, S. Carlsson, E. D. Demaine, J. Iacono, and S. Langerman, "Resizing Arrays Dynamically," *Algorithmica*, vol. 23, no. 1, pp. 20–37, 1999.
+
+## Appendix: Group Member
+
+- Jiyuan Zhang (jz6590@nyu.edu)
+- Xinyue Chen (xc2920@nyu.edu)
+- Alex Qi (zq2201@nyu.edu)
+- Yingzi Sun (ys5899@nyu.edu)
