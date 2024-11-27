@@ -1,5 +1,4 @@
 #include "SinglyLinkedListSegmented.cpp"
-#include "SimpleHash.h"
 #include <iostream>
 #include <omp.h>
 
